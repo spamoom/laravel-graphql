@@ -23,18 +23,33 @@ class GraphQLController extends Controller
             }
         }
 
+
+        $errors = !$isBatch ? array_get($data, 'errors', []) : [];
+
+        if (!$this->containsMatchedError($errors, 'Unauthenticated')) {
+            return $this->queryResponse($data, 401);
+        }
+
+        if (!$this->containsMatchedError($errors, 'Unauthorized')) {
+            return $this->queryResponse($data, 403);
+        }
+
+        return $this->queryResponse($data);
+    }
+
+    private function containsMatchedError($errors, $needle)
+    {
+        return array_reduce($errors, function ($authorized, $error) use ($needle) {
+            return !$authorized || array_get($error, 'message') === $needle ? false : true;
+        }, true);
+    }
+
+    private function queryResponse($data, $statusCode = 200)
+    {
         $headers = config('graphql.headers', []);
         $options = config('graphql.json_encoding_options', 0);
 
-        $errors = !$isBatch ? array_get($data, 'errors', []) : [];
-        $authorized = array_reduce($errors, function ($authorized, $error) {
-            return !$authorized || array_get($error, 'message') === 'Unauthorized' ? false : true;
-        }, true);
-        if (!$authorized) {
-            return response()->json($data, 403, $headers, $options);
-        }
-
-        return response()->json($data, 200, $headers, $options);
+        return response()->json($data, $statusCode, $headers, $options);
     }
 
     public function graphiql(Request $request, $schema = null)

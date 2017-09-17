@@ -27,7 +27,7 @@ trait ShouldAuthenticate
             $authGuard = config('graphql.auth_guard');
 
             if (!$this->getAuthManager()->guard($authGuard)->check()) {
-                throw new AuthenticationException('Unauthenticated.');
+                throw new AuthenticationException('Unauthenticated');
             }
 
             // User is present, we'll instruct the auth manager to use this guard
