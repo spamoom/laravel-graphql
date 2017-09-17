@@ -3,6 +3,7 @@
 namespace Folklore\GraphQL\Support;
 
 use Illuminate\Support\Fluent;
+use Illuminate\Auth\AuthenticationException;
 use Folklore\GraphQL\Error\AuthorizationError;
 
 class Field extends Fluent
@@ -15,6 +16,15 @@ class Field extends Fluent
     public function authorize()
     {
         return true;
+    }
+
+    /**
+     * Override this in your queries or mutations
+     * to provide custom authentication
+     */
+    public function requiresAuthentication()
+    {
+        return config('graphql.auth_required', false);
     }
 
     public function attributes()
@@ -37,6 +47,8 @@ class Field extends Fluent
         if (!method_exists($this, 'resolve')) {
             return null;
         }
+
+        $this->checkAuthentication();
 
         $resolver = array($this, 'resolve');
         $authorize = [$this, 'authorize'];
@@ -112,5 +124,23 @@ class Field extends Fluent
     {
         $attributes = $this->getAttributes();
         return isset($attributes[$key]);
+    }
+
+    protected function checkAuthentication()
+    {
+        if (call_user_func([$this, 'requiresAuthentication']) !== true) {
+            // Auth not required for this
+            return;
+        }
+
+        $auth = app('Illuminate\Contracts\Auth\Factory');
+        $authGuard = config('graphql.auth_guard');
+
+        if (!$auth->guard($authGuard)->check()) {
+            throw new AuthenticationException('Unauthenticated.');
+        }
+
+        // User is present, we'll instruct the auth manager to use this guard
+        $auth->shouldUse($authGuard);
     }
 }
