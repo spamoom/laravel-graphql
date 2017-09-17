@@ -83,7 +83,7 @@ return [
      *
      * This can be overridden on a per-query or per-mutation basis
      */
-    'auth_required' => true,
+    'auth_required' => false,
 
     /*
      * The guard to use when checking for authentication
