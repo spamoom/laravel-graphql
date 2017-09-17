@@ -40,13 +40,13 @@ class Field extends Fluent
             return null;
         }
 
-        $this->checkAuthentication();
-
         $resolver = [$this, 'resolve'];
         $authorize = [$this, 'authorize'];
 
         return function () use ($resolver, $authorize) {
             $args = func_get_args();
+
+            $this->checkAuthentication();
 
             // Authorize
             if (call_user_func($authorize) !== true) {
