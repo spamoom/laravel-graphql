@@ -21,17 +21,24 @@ trait ShouldAuthenticate
         return app(Factory::class);
     }
 
+    public function authGuard()
+    {
+        return config('graphql.auth_guard');
+    }
+
+    public function loadUserIfPresent()
+    {
+        if ($this->getAuthManager()->guard($this->authGuard())->check()) {
+            $this->getAuthManager()->shouldUse($this->authGuard());
+        }
+    }
+
     protected function checkAuthentication()
     {
         if (call_user_func([$this, 'requiresAuthentication']) === true) {
-            $authGuard = config('graphql.auth_guard');
-
-            if (!$this->getAuthManager()->guard($authGuard)->check()) {
+            if (!$this->getAuthManager()->guard($this->authGuard())->check()) {
                 throw new AuthenticationException('Unauthenticated');
             }
-
-            // User is present, we'll instruct the auth manager to use this guard
-            $this->getAuthManager()->shouldUse($authGuard);
         }
     }
 }

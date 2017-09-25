@@ -40,6 +40,8 @@ class Field extends Fluent
             return null;
         }
 
+        $this->loadUserIfPresent();
+
         $resolver = [$this, 'resolve'];
         $authorize = [$this, 'authorize'];
 
