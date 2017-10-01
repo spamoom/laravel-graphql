@@ -78,6 +78,19 @@ return [
     ],
 
     /*
+     * Sets the default state for checking auth. Setting this to true will
+     * make the API return a 401 unless authenticated on each request.
+     *
+     * This can be overridden on a per-query or per-mutation basis
+     */
+    'auth_required' => false,
+
+    /*
+     * The guard to use when checking for authentication
+     */
+    'auth_guard' => 'api',
+
+    /*
      * The name of the default schema used when no arguments are provided
      * to GraphQL::schema() or when the route is used without the graphql_schema
      * parameter

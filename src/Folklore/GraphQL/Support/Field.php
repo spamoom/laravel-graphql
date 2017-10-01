@@ -4,9 +4,11 @@ namespace Folklore\GraphQL\Support;
 
 use Illuminate\Support\Fluent;
 use Folklore\GraphQL\Error\AuthorizationError;
+use Folklore\GraphQL\Support\Traits\ShouldAuthenticate;
 
 class Field extends Fluent
 {
+    use ShouldAuthenticate;
 
     /**
      * Override this in your queries or mutations
@@ -38,11 +40,15 @@ class Field extends Fluent
             return null;
         }
 
-        $resolver = array($this, 'resolve');
+        $this->loadUserIfPresent();
+
+        $resolver = [$this, 'resolve'];
         $authorize = [$this, 'authorize'];
 
         return function () use ($resolver, $authorize) {
             $args = func_get_args();
+
+            $this->checkAuthentication();
 
             // Authorize
             if (call_user_func_array($authorize, $args) !== true) {
