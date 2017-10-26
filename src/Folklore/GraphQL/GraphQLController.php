@@ -5,6 +5,25 @@ use Illuminate\Http\Response;
 
 class GraphQLController extends Controller
 {
+    public function __construct(Request $request)
+    {
+        $route = $request->route();
+        $defaultSchema = config('graphql.schema');
+        if (is_array($route)) {
+            $schema = array_get($route, '2.graphql_schema', $defaultSchema);
+        } elseif (is_object($route)) {
+            $schema = $route->parameter('graphql_schema', $defaultSchema);
+        } else {
+            $schema = $defaultSchema;
+        }
+
+        $middleware = config('graphql.middleware_schema.' . $schema, null);
+
+        if ($middleware) {
+            $this->middleware($middleware);
+        }
+    }
+
     public function query(Request $request, $schema = null)
     {
         $isBatch = !$request->has('query');
