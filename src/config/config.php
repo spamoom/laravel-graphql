@@ -63,6 +63,19 @@ return [
     ],
 
     /*
+     * Sets the default state for checking auth. Setting this to true will
+     * make the API return a 401 unless authenticated on each request.
+     *
+     * This can be overridden on a per-query or per-mutation basis
+     */
+    'auth_schema' => [
+        'default' => [
+            'required' => false,
+            'guard' => 'api', // The guard to use when checking for authentication
+        ],
+    ],
+
+    /*
      * Any headers that will be added to the response returned by the default controller
      */
     'headers' => [],
@@ -83,19 +96,6 @@ return [
         'middleware' => [],
         'view' => 'graphql::graphiql'
     ],
-
-    /*
-     * Sets the default state for checking auth. Setting this to true will
-     * make the API return a 401 unless authenticated on each request.
-     *
-     * This can be overridden on a per-query or per-mutation basis
-     */
-    'auth_required' => false,
-
-    /*
-     * The guard to use when checking for authentication
-     */
-    'auth_guard' => 'api',
 
     /*
      * The name of the default schema used when no arguments are provided

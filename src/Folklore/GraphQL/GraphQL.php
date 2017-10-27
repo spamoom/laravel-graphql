@@ -18,10 +18,12 @@ use Folklore\GraphQL\Events\TypeAdded;
 class GraphQL
 {
     protected $app;
-
     protected $schemas = [];
+
     protected $types = [];
     protected $typesInstances = [];
+
+    protected static $currentSchemaName = null;
 
     public function __construct($app)
     {
@@ -154,6 +156,8 @@ class GraphQL
         $schemaName = array_get($opts, 'schema', null);
         $operationName = array_get($opts, 'operationName', null);
 
+        static::$currentSchemaName = $schemaName;
+
         $schema = $this->schema($schemaName);
 
         $result = GraphQLBase::executeAndReturnResult($schema, $query, $root, $context, $variables, $operationName);
@@ -285,5 +289,15 @@ class GraphQL
         }
 
         return $error;
+    }
+
+    public function currentSchemaName()
+    {
+        return static::$currentSchemaName;
+    }
+
+    public function currentSchema()
+    {
+        return $this->schema($this->currentSchemaName());
     }
 }

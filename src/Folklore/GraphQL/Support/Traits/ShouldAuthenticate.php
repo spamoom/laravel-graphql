@@ -2,6 +2,7 @@
 
 namespace Folklore\GraphQL\Support\Traits;
 
+use GraphQL;
 use Illuminate\Contracts\Auth\Factory;
 use Illuminate\Auth\AuthenticationException;
 
@@ -13,7 +14,7 @@ trait ShouldAuthenticate
      */
     public function requiresAuthentication()
     {
-        return config('graphql.auth_required', false);
+        return config('graphql.auth_schema.' . app('graphql')->currentSchemaName() . '.required', false);
     }
 
     protected function getAuthManager()
@@ -23,7 +24,7 @@ trait ShouldAuthenticate
 
     public function authGuard()
     {
-        return config('graphql.auth_guard');
+        return config('graphql.auth_schema.' . app('graphql')->currentSchemaName() . '.guard');
     }
 
     public function loadUserIfPresent()
